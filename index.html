@@ -9,73 +9,68 @@
 body{
   margin:0;
   font-family:Arial;
-  background:#050914;
-  color:#fff;
+  background:#0a0f1c;
+  color:#e6edf3;
 }
 
-/* TOP BAR */
-.topbar{
-  background:#0b1220;
-  padding:12px;
+/* HEADER */
+.header{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  padding:15px;
+  background:#0f172a;
   border-bottom:1px solid #1f2a44;
 }
 
 .logo{
-  color:#00e5ff;
-  font-weight:bold;
   font-size:18px;
+  font-weight:bold;
+  color:#38bdf8;
 }
 
-/* LAYOUT */
+/* GRID */
 .grid{
   display:grid;
   grid-template-columns:1fr 2fr 1fr;
-  height:calc(100vh - 50px);
+  height:calc(100vh - 60px);
 }
 
 /* PANELS */
 .panel{
-  background:#0b1220;
-  border-right:1px solid #1f2a44;
   padding:10px;
+  background:#0f172a;
+  border-right:1px solid #1f2a44;
   overflow:auto;
 }
 
+/* CENTER */
 .center{
-  background:#070d1a;
   padding:10px;
+  background:#0b1220;
 }
 
-/* CARDS */
+/* CARD */
 .card{
   background:#111c33;
-  padding:10px;
+  padding:12px;
   margin:10px 0;
+  border-radius:10px;
+}
+
+/* INPUTS */
+input,button,select{
+  padding:10px;
+  margin:5px;
+  border:none;
   border-radius:8px;
 }
 
-/* BUTTONS */
-button,input,select{
-  padding:8px;
-  margin:4px;
-  border:none;
-  border-radius:6px;
-}
-
 button{
-  background:#00e5ff;
+  background:#38bdf8;
+  color:#000;
   cursor:pointer;
-}
-
-/* CHART STYLE */
-.bar{
-  height:6px;
-  margin:2px;
-  background:#00e5ff;
-  border-radius:4px;
+  font-weight:bold;
 }
 
 /* MARKET ROW */
@@ -84,68 +79,87 @@ button{
   justify-content:space-between;
   padding:6px;
   border-bottom:1px solid #1f2a44;
-  font-size:13px;
+}
+
+/* IMAGE */
+.hero{
+  width:100%;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="topbar">
+<div class="header">
   <div class="logo">🚀 NexTerminal PRO</div>
-  <div>SIMULATED TRADING ENVIRONMENT</div>
+  <div>Advanced Digital Asset Platform</div>
 </div>
 
 <div class="grid">
 
-<!-- LEFT PANEL -->
+<!-- LEFT -->
 <div class="panel">
 
-  <h3>📊 Market</h3>
+  <img class="hero" src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=600" />
+
+  <h3>📊 Markets</h3>
 
   <div class="row"><span>BTC</span><span id="btc">50000</span></div>
   <div class="row"><span>ETH</span><span id="eth">3000</span></div>
   <div class="row"><span>SOL</span><span id="sol">120</span></div>
-
-  <h3>📈 Chart</h3>
-  <div id="chart"></div>
+  <div class="row"><span>BNB</span><span id="bnb">400</span></div>
+  <div class="row"><span>XRP</span><span id="xrp">0.60</span></div>
 
 </div>
 
-<!-- CENTER PANEL -->
+<!-- CENTER -->
 <div class="center">
 
-  <div class="card">
-    <h3>📈 Trading Panel</h3>
+  <h3>📈 Trading Panel</h3>
 
+  <div class="card">
     <select id="coin">
       <option>BTC</option>
       <option>ETH</option>
       <option>SOL</option>
+      <option>BNB</option>
+      <option>XRP</option>
     </select>
 
     <input id="amount" type="number" placeholder="Amount">
 
     <button onclick="buy()">BUY</button>
     <button onclick="sell()">SELL</button>
+  </div>
 
-    <p id="orders"></p>
+  <div class="card">
+    <h3>📥 Deposit</h3>
+    <p>Your wallet address:</p>
+    <p id="wallet" style="color:#38bdf8;"></p>
+  </div>
+
+  <div class="card">
+    <h3>📜 Orders</h3>
+    <pre id="orders"></pre>
   </div>
 
 </div>
 
-<!-- RIGHT PANEL -->
+<!-- RIGHT -->
 <div class="panel">
 
-  <h3>💰 Wallet</h3>
+  <img class="hero" src="https://images.unsplash.com/photo-1640340434855-6084b1a0b7c3?w=600" />
+
+  <h3>👤 Account</h3>
 
   <p>User: <span id="user">Guest</span></p>
   <p>Balance: $<span id="balance">0</span></p>
 
-  <button onclick="addMoney()">+100 Demo</button>
+  <button onclick="addMoney()">+100 Deposit</button>
 
-  <h3>Assets</h3>
-  <p id="assets"></p>
+  <h3>💼 Assets</h3>
+  <pre id="assets"></pre>
 
 </div>
 
@@ -153,18 +167,24 @@ button{
 
 <script>
 
-/* MARKET ENGINE */
+/* MARKET */
 let market = {
   BTC: 50000,
   ETH: 3000,
-  SOL: 120
+  SOL: 120,
+  BNB: 400,
+  XRP: 0.6
 };
 
 /* WALLET */
 let wallet = {
-  balance: 0,
-  assets: {BTC:0,ETH:0,SOL:0}
+  balance:0,
+  assets:{BTC:0,ETH:0,SOL:0,BNB:0,XRP:0}
 };
+
+/* WALLET ADDRESS */
+let address = "NX-" + Math.random().toString(36).substring(2,10).toUpperCase();
+document.getElementById("wallet").innerText = address;
 
 /* ORDERS */
 let orders = [];
@@ -175,20 +195,7 @@ setInterval(()=>{
     market[c] += (Math.random()-0.5)*market[c]*0.01;
     document.getElementById(c.toLowerCase()).innerText = market[c].toFixed(2);
   }
-
-  drawChart();
-},2000);
-
-/* CHART SIMULATION */
-function drawChart(){
-  let chart = document.getElementById("chart");
-  chart.innerHTML = "";
-
-  for(let i=0;i<15;i++){
-    let h = Math.random()*80 + 10;
-    chart.innerHTML += `<div class="bar" style="width:${h}px"></div>`;
-  }
-}
+},2500);
 
 /* ADD MONEY */
 function addMoney(){
@@ -198,15 +205,14 @@ function addMoney(){
 
 /* BUY */
 function buy(){
-  let coin = document.getElementById("coin").value;
-  let amt = Number(document.getElementById("amount").value);
+  let coin = coinSel();
+  let amt = Number(amount());
 
   let cost = market[coin]*amt;
 
   if(wallet.balance >= cost){
     wallet.balance -= cost;
     wallet.assets[coin] += amt;
-
     orders.push("BUY "+amt+" "+coin);
     update();
   }
@@ -214,13 +220,12 @@ function buy(){
 
 /* SELL */
 function sell(){
-  let coin = document.getElementById("coin").value;
-  let amt = Number(document.getElementById("amount").value);
+  let coin = coinSel();
+  let amt = Number(amount());
 
   if(wallet.assets[coin] >= amt){
     wallet.assets[coin] -= amt;
     wallet.balance += market[coin]*amt;
-
     orders.push("SELL "+amt+" "+coin);
     update();
   }
@@ -231,10 +236,18 @@ function update(){
   document.getElementById("balance").innerText = wallet.balance.toFixed(2);
 
   document.getElementById("assets").innerText =
-  `BTC:${wallet.assets.BTC} ETH:${wallet.assets.ETH} SOL:${wallet.assets.SOL}`;
+  JSON.stringify(wallet.assets,null,2);
 
   document.getElementById("orders").innerText =
-  orders.slice(-5).join("\n");
+  orders.slice(-6).join("\n");
+}
+
+function coinSel(){
+  return document.getElementById("coin").value;
+}
+
+function amount(){
+  return document.getElementById("amount").value;
 }
 
 update();
