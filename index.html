@@ -2,66 +2,56 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>NexTerminal Pro</title>
+<title>NexMobile Exchange</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
   margin:0;
   font-family:Arial;
-  background:#0a0f1c;
-  color:#e6edf3;
+  background:#0b1020;
+  color:#e5e7eb;
+}
+
+/* MOBILE APP FRAME */
+.app{
+  max-width:420px;
+  margin:auto;
+  height:100vh;
+  background:#0f172a;
+  display:flex;
+  flex-direction:column;
 }
 
 /* HEADER */
 .header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
   padding:15px;
-  background:#0f172a;
-  border-bottom:1px solid #1f2a44;
-}
-
-.logo{
-  font-size:18px;
-  font-weight:bold;
+  background:#111c33;
+  text-align:center;
   color:#38bdf8;
+  font-weight:bold;
 }
 
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:1fr 2fr 1fr;
-  height:calc(100vh - 60px);
-}
-
-/* PANELS */
-.panel{
+/* SCREENS */
+.screen{
+  flex:1;
   padding:10px;
-  background:#0f172a;
-  border-right:1px solid #1f2a44;
   overflow:auto;
-}
-
-/* CENTER */
-.center{
-  padding:10px;
-  background:#0b1220;
 }
 
 /* CARD */
 .card{
   background:#111c33;
   padding:12px;
+  border-radius:12px;
   margin:10px 0;
-  border-radius:10px;
 }
 
 /* INPUTS */
 input,button,select{
+  width:100%;
   padding:10px;
-  margin:5px;
+  margin:5px 0;
   border:none;
   border-radius:8px;
 }
@@ -69,188 +59,211 @@ input,button,select{
 button{
   background:#38bdf8;
   color:#000;
-  cursor:pointer;
   font-weight:bold;
 }
 
-/* MARKET ROW */
-.row{
+/* NAV BAR */
+.nav{
   display:flex;
-  justify-content:space-between;
-  padding:6px;
-  border-bottom:1px solid #1f2a44;
+  justify-content:space-around;
+  background:#0b1220;
+  padding:10px;
+  border-top:1px solid #1f2a44;
 }
 
-/* IMAGE */
-.hero{
-  width:100%;
-  border-radius:10px;
+.nav button{
+  width:30%;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <div class="logo">🚀 NexTerminal PRO</div>
-  <div>Advanced Digital Asset Platform</div>
-</div>
+<div class="app">
 
-<div class="grid">
+  <div class="header">🚀 NexMobile Exchange</div>
 
-<!-- LEFT -->
-<div class="panel">
+  <!-- AUTH -->
+  <div id="auth" class="screen">
 
-  <img class="hero" src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=600" />
+    <div class="card">
+      <h3>Login</h3>
+      <input id="email" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
 
-  <h3>📊 Markets</h3>
+      <button onclick="login()">Login</button>
+      <button onclick="register()">Register</button>
+    </div>
 
-  <div class="row"><span>BTC</span><span id="btc">50000</span></div>
-  <div class="row"><span>ETH</span><span id="eth">3000</span></div>
-  <div class="row"><span>SOL</span><span id="sol">120</span></div>
-  <div class="row"><span>BNB</span><span id="bnb">400</span></div>
-  <div class="row"><span>XRP</span><span id="xrp">0.60</span></div>
-
-</div>
-
-<!-- CENTER -->
-<div class="center">
-
-  <h3>📈 Trading Panel</h3>
-
-  <div class="card">
-    <select id="coin">
-      <option>BTC</option>
-      <option>ETH</option>
-      <option>SOL</option>
-      <option>BNB</option>
-      <option>XRP</option>
-    </select>
-
-    <input id="amount" type="number" placeholder="Amount">
-
-    <button onclick="buy()">BUY</button>
-    <button onclick="sell()">SELL</button>
   </div>
 
-  <div class="card">
-    <h3>📥 Deposit</h3>
-    <p>Your wallet address:</p>
-    <p id="wallet" style="color:#38bdf8;"></p>
+  <!-- APP -->
+  <div id="appScreen" class="screen" style="display:none;">
+
+    <div class="card">
+      <h3>👤 User</h3>
+      <p id="user"></p>
+    </div>
+
+    <div class="card">
+      <h3>💰 Balance</h3>
+      <p>$<span id="balance">0</span></p>
+      <button onclick="deposit()">+100 Deposit</button>
+    </div>
+
+    <div class="card">
+      <h3>📊 Market</h3>
+      <p>BTC: <span id="btc">50000</span></p>
+      <p>ETH: <span id="eth">3000</span></p>
+      <p>SOL: <span id="sol">120</span></p>
+    </div>
+
+    <div class="card">
+      <h3>📈 Trade</h3>
+
+      <select id="coin">
+        <option>BTC</option>
+        <option>ETH</option>
+        <option>SOL</option>
+      </select>
+
+      <input id="amount" type="number" placeholder="Amount">
+
+      <button onclick="buy()">BUY</button>
+      <button onclick="sell()">SELL</button>
+    </div>
+
+    <div class="card">
+      <h3>📥 Deposit Wallet</h3>
+      <p id="wallet" style="color:#38bdf8;"></p>
+    </div>
+
   </div>
 
-  <div class="card">
-    <h3>📜 Orders</h3>
-    <pre id="orders"></pre>
-  </div>
-
 </div>
 
-<!-- RIGHT -->
-<div class="panel">
+<script type="module">
 
-  <img class="hero" src="https://images.unsplash.com/photo-1640340434855-6084b1a0b7c3?w=600" />
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  <h3>👤 Account</h3>
+/* 🔥 TU FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_AUTH_DOMAIN",
+  projectId: "TU_PROJECT_ID"
+};
 
-  <p>User: <span id="user">Guest</span></p>
-  <p>Balance: $<span id="balance">0</span></p>
-
-  <button onclick="addMoney()">+100 Deposit</button>
-
-  <h3>💼 Assets</h3>
-  <pre id="assets"></pre>
-
-</div>
-
-</div>
-
-<script>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
 
 /* MARKET */
-let market = {
-  BTC: 50000,
-  ETH: 3000,
-  SOL: 120,
-  BNB: 400,
-  XRP: 0.6
-};
+let market = { BTC:50000, ETH:3000, SOL:120 };
 
 /* WALLET */
-let wallet = {
-  balance:0,
-  assets:{BTC:0,ETH:0,SOL:0,BNB:0,XRP:0}
-};
+let wallet = { balance:0, assets:{BTC:0,ETH:0,SOL:0} };
 
 /* WALLET ADDRESS */
 let address = "NX-" + Math.random().toString(36).substring(2,10).toUpperCase();
 document.getElementById("wallet").innerText = address;
 
-/* ORDERS */
-let orders = [];
-
-/* LIVE MARKET */
+/* MARKET LIVE */
 setInterval(()=>{
   for(let c in market){
     market[c] += (Math.random()-0.5)*market[c]*0.01;
     document.getElementById(c.toLowerCase()).innerText = market[c].toFixed(2);
   }
-},2500);
+},3000);
 
-/* ADD MONEY */
-function addMoney(){
-  wallet.balance += 100;
+/* AUTH */
+window.register = async ()=>{
+  const u = await createUserWithEmailAndPassword(auth,email.value,password.value);
+  await setDoc(doc(db,"users",u.user.uid),wallet);
+};
+
+window.login = ()=>{
+  signInWithEmailAndPassword(auth,email.value,password.value);
+};
+
+/* SESSION */
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    document.getElementById("auth").style.display="none";
+    document.getElementById("appScreen").style.display="block";
+    document.getElementById("user").innerText=user.email;
+
+    load(user);
+  }else{
+    document.getElementById("auth").style.display="block";
+    document.getElementById("appScreen").style.display="none";
+  }
+});
+
+let currentUser;
+
+/* LOAD */
+async function load(user){
+  currentUser=user;
+
+  let ref=doc(db,"users",user.uid);
+  let snap=await getDoc(ref);
+
+  wallet=snap.data();
+
   update();
 }
 
+/* DEPOSIT */
+window.deposit = async ()=>{
+  let ref=doc(db,"users",currentUser.uid);
+  wallet.balance+=100;
+  await updateDoc(ref,wallet);
+  update();
+};
+
 /* BUY */
-function buy(){
-  let coin = coinSel();
-  let amt = Number(amount());
+window.buy = async ()=>{
+  let coin=coinSel();
+  let amt=Number(amount());
 
-  let cost = market[coin]*amt;
+  let cost=market[coin]*amt;
 
-  if(wallet.balance >= cost){
-    wallet.balance -= cost;
-    wallet.assets[coin] += amt;
-    orders.push("BUY "+amt+" "+coin);
+  if(wallet.balance>=cost){
+    wallet.balance-=cost;
+    wallet.assets[coin]+=amt;
+
+    await save();
     update();
   }
-}
+};
 
 /* SELL */
-function sell(){
-  let coin = coinSel();
-  let amt = Number(amount());
+window.sell = async ()=>{
+  let coin=coinSel();
+  let amt=Number(amount());
 
-  if(wallet.assets[coin] >= amt){
-    wallet.assets[coin] -= amt;
-    wallet.balance += market[coin]*amt;
-    orders.push("SELL "+amt+" "+coin);
+  if(wallet.assets[coin]>=amt){
+    wallet.assets[coin]-=amt;
+    wallet.balance+=market[coin]*amt;
+
+    await save();
     update();
   }
+};
+
+async function save(){
+  let ref=doc(db,"users",currentUser.uid);
+  await updateDoc(ref,wallet);
 }
 
-/* UPDATE UI */
 function update(){
-  document.getElementById("balance").innerText = wallet.balance.toFixed(2);
-
-  document.getElementById("assets").innerText =
-  JSON.stringify(wallet.assets,null,2);
-
-  document.getElementById("orders").innerText =
-  orders.slice(-6).join("\n");
+  document.getElementById("balance").innerText=wallet.balance.toFixed(2);
 }
 
-function coinSel(){
-  return document.getElementById("coin").value;
-}
-
-function amount(){
-  return document.getElementById("amount").value;
-}
-
-update();
+function coinSel(){ return document.getElementById("coin").value; }
+function amount(){ return document.getElementById("amount").value; }
 
 </script>
 
