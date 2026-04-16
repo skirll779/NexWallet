@@ -1,73 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NexWallet</title>
+<title>NexExchange Ultra Pro</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #0b1220;
-  color: white;
-  text-align: center;
+body{
+  margin:0;
+  font-family:Arial;
+  background:#070d1a;
+  color:white;
 }
 
-input {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 6px;
-  border: none;
-  width: 200px;
+.header{
+  background:#111c33;
+  padding:15px;
+  text-align:center;
+  color:#00e5ff;
+  font-weight:bold;
 }
 
-button {
-  padding: 10px 15px;
-  margin: 5px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background: #00e5ff;
-  font-weight: bold;
+.grid{
+  display:grid;
+  grid-template-columns:1fr 2fr 1fr;
+  gap:10px;
+  padding:10px;
 }
 
-.card {
-  background: #111c33;
-  padding: 20px;
-  margin: 20px auto;
-  width: 300px;
-  border-radius: 10px;
+.box{
+  background:#111c33;
+  padding:10px;
+  border-radius:10px;
+}
+
+button,input,select{
+  padding:8px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+}
+
+button{
+  background:#00e5ff;
+  cursor:pointer;
+}
+
+/* simple chart */
+.bar{
+  height:10px;
+  margin:2px;
+  background:#00e5ff;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🚀 NexWallet</h1>
+<div class="header">🚀 NexExchange ULTRA PRO (SIMULATOR)</div>
 
 <!-- AUTH -->
-<div id="auth">
+<div id="auth" class="box" style="margin:10px;">
   <h3>Login / Register</h3>
-  <input id="email" type="email" placeholder="Email"><br>
+  <input id="email" placeholder="Email"><br>
   <input id="password" type="password" placeholder="Password"><br>
-
   <button onclick="register()">Register</button>
   <button onclick="login()">Login</button>
 </div>
 
-<!-- DASHBOARD -->
+<!-- APP -->
 <div id="app" style="display:none;">
-  <h3>Dashboard</h3>
-  <p id="user"></p>
 
-  <div class="card">
-    <h2>Balance: $<span id="balance">0</span></h2>
+<div class="grid">
 
-    <button onclick="deposit()">+100 Deposit</button>
-    <button onclick="trade()">Trade</button>
-    <button onclick="logout()">Logout</button>
+  <!-- MARKET -->
+  <div class="box">
+    <h3>📊 Market</h3>
+    <p>BTC: $<span id="btc">50000</span></p>
+    <p>ETH: $<span id="eth">3000</span></p>
+    <p>SOL: $<span id="sol">120</span></p>
+
+    <h4>Mini Chart</h4>
+    <div id="chart"></div>
   </div>
+
+  <!-- TRADING -->
+  <div class="box">
+    <h3>📈 Trade Panel</h3>
+
+    <select id="coin">
+      <option>BTC</option>
+      <option>ETH</option>
+      <option>SOL</option>
+    </select>
+
+    <input id="amount" type="number" placeholder="Amount">
+
+    <button onclick="buy()">BUY</button>
+    <button onclick="sell()">SELL</button>
+
+    <h4>Order Book</h4>
+    <div id="orders"></div>
+  </div>
+
+  <!-- WALLET -->
+  <div class="box">
+    <h3>💰 Wallet</h3>
+    <p id="user"></p>
+    <p>Balance: $<span id="balance">0</span></p>
+
+    <button onclick="addMoney()">+100 Demo</button>
+    <button onclick="logout()">Logout</button>
+
+    <h4>Assets</h4>
+    <p id="assets"></p>
+  </div>
+
+</div>
+
 </div>
 
 <script type="module">
@@ -75,84 +123,150 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* 🔥 TU CONFIG FIREBASE (EL TUYO) */
+/* FIREBASE */
 const firebaseConfig = {
-  apiKey: "AIzaSyD2e9BtERsCm6n6mAlj6Ll6c7GMcWzc0uE",
-  authDomain: "nexwallet-312d9.firebaseapp.com",
-  projectId: "nexwallet-312d9",
-  storageBucket: "nexwallet-312d9.firebasestorage.app",
-  messagingSenderId: "1070652152586",
-  appId: "1:1070652152586:web:e82236c52d783b06d578f3",
-  measurementId: "G-QHRD1ZWJYH"
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_AUTH",
+  projectId: "TU_PROJECT"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore();
 
-/* REGISTER */
-window.register = async () => {
-  const userCred = await createUserWithEmailAndPassword(auth, email.value, password.value);
+/* MARKET ENGINE */
+let market = {
+  BTC: 50000,
+  ETH: 3000,
+  SOL: 120
+};
 
-  await setDoc(doc(db, "users", userCred.user.uid), {
-    balance: 0
+/* ORDER BOOK */
+let orders = [];
+
+/* MARKET LIVE */
+setInterval(()=>{
+  for(let c in market){
+    market[c] += (Math.random()-0.5)*market[c]*0.01;
+    document.getElementById(c.toLowerCase()).innerText = market[c].toFixed(2);
+  }
+
+  drawChart();
+},2000);
+
+/* CHART */
+function drawChart(){
+  let chart = document.getElementById("chart");
+  chart.innerHTML = "";
+
+  for(let i=0;i<10;i++){
+    let h = Math.random()*80 + 10;
+    chart.innerHTML += `<div class='bar' style='width:${h}px'></div>`;
+  }
+}
+
+/* AUTH */
+window.register = async ()=>{
+  let u = await createUserWithEmailAndPassword(auth,email.value,password.value);
+  await setDoc(doc(db,"users",u.user.uid),{
+    balance:0,
+    assets:{BTC:0,ETH:0,SOL:0}
   });
-
-  alert("Account created!");
 };
 
-/* LOGIN */
-window.login = async () => {
-  await signInWithEmailAndPassword(auth, email.value, password.value);
-};
-
-/* LOGOUT */
-window.logout = () => signOut(auth);
+window.login = ()=> signInWithEmailAndPassword(auth,email.value,password.value);
+window.logout = ()=> signOut(auth);
 
 /* SESSION */
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    document.getElementById("auth").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("user").innerText = user.email;
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    document.getElementById("auth").style.display="none";
+    document.getElementById("app").style.display="block";
+    document.getElementById("user").innerText=user.email;
 
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
-
-    document.getElementById("balance").innerText = snap.data().balance;
-  } else {
-    document.getElementById("auth").style.display = "block";
-    document.getElementById("app").style.display = "none";
+    load(user);
+  }else{
+    document.getElementById("auth").style.display="block";
+    document.getElementById("app").style.display="none";
   }
 });
 
-/* DEPOSIT */
-window.deposit = async () => {
-  const user = auth.currentUser;
-  const ref = doc(db, "users", user.uid);
+let currentUser;
 
-  const snap = await getDoc(ref);
-  let balance = snap.data().balance + 100;
+async function load(user){
+  currentUser = user;
+  let ref = doc(db,"users",user.uid);
+  let snap = await getDoc(ref);
 
-  await updateDoc(ref, { balance });
+  updateUI(snap.data());
+}
 
-  document.getElementById("balance").innerText = balance;
+function updateUI(data){
+  document.getElementById("balance").innerText=data.balance;
+  document.getElementById("assets").innerText=
+  `BTC:${data.assets.BTC} ETH:${data.assets.ETH} SOL:${data.assets.SOL}`;
+
+  document.getElementById("orders").innerHTML =
+  orders.slice(-5).map(o=>`<p>${o}</p>`).join("");
+}
+
+/* ADD MONEY */
+window.addMoney = async ()=>{
+  let ref = doc(db,"users",currentUser.uid);
+  let snap = await getDoc(ref);
+
+  let b = snap.data().balance + 100;
+  await updateDoc(ref,{balance:b});
+
+  updateUI({...snap.data(),balance:b});
 };
 
-/* TRADE SIMULATION */
-window.trade = async () => {
-  const user = auth.currentUser;
-  const ref = doc(db, "users", user.uid);
+/* BUY */
+window.buy = async ()=>{
+  let coin = coinSel();
+  let amt = Number(amount());
 
-  const snap = await getDoc(ref);
-  let balance = snap.data().balance;
+  let ref = doc(db,"users",currentUser.uid);
+  let snap = await getDoc(ref);
 
-  balance += Math.random() > 0.5 ? 50 : -30;
+  let cost = market[coin]*amt;
 
-  await updateDoc(ref, { balance });
+  let data = snap.data();
 
-  document.getElementById("balance").innerText = balance;
+  if(data.balance >= cost){
+    data.balance -= cost;
+    data.assets[coin] += amt;
+
+    orders.push("BUY "+amt+" "+coin);
+
+    await updateDoc(ref,data);
+    updateUI(data);
+  }
 };
+
+/* SELL */
+window.sell = async ()=>{
+  let coin = coinSel();
+  let amt = Number(amount());
+
+  let ref = doc(db,"users",currentUser.uid);
+  let snap = await getDoc(ref);
+
+  let data = snap.data();
+
+  if(data.assets[coin] >= amt){
+    data.assets[coin] -= amt;
+    data.balance += market[coin]*amt;
+
+    orders.push("SELL "+amt+" "+coin);
+
+    await updateDoc(ref,data);
+    updateUI(data);
+  }
+};
+
+function coinSel(){ return document.getElementById("coin").value; }
+function amount(){ return document.getElementById("amount").value; }
 </script>
 
 </body>
