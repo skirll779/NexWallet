@@ -2,41 +2,65 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>NexExchange Pro</title>
+<title>NexTerminal Pro</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
   margin:0;
   font-family:Arial;
-  background:#070d1a;
-  color:white;
+  background:#050914;
+  color:#fff;
 }
 
-header{
-  background:#111c33;
-  padding:15px;
-  text-align:center;
+/* TOP BAR */
+.topbar{
+  background:#0b1220;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #1f2a44;
+}
+
+.logo{
   color:#00e5ff;
   font-weight:bold;
+  font-size:18px;
 }
 
-.container{
+/* LAYOUT */
+.grid{
   display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:10px;
+  grid-template-columns:1fr 2fr 1fr;
+  height:calc(100vh - 50px);
+}
+
+/* PANELS */
+.panel{
+  background:#0b1220;
+  border-right:1px solid #1f2a44;
+  padding:10px;
+  overflow:auto;
+}
+
+.center{
+  background:#070d1a;
   padding:10px;
 }
 
-.box{
+/* CARDS */
+.card{
   background:#111c33;
-  padding:15px;
-  border-radius:10px;
+  padding:10px;
+  margin:10px 0;
+  border-radius:8px;
 }
 
-input,button,select{
+/* BUTTONS */
+button,input,select{
   padding:8px;
-  margin:5px;
+  margin:4px;
   border:none;
   border-radius:6px;
 }
@@ -46,50 +70,53 @@ button{
   cursor:pointer;
 }
 
-.price{
-  color:#00e5ff;
+/* CHART STYLE */
+.bar{
+  height:6px;
+  margin:2px;
+  background:#00e5ff;
+  border-radius:4px;
+}
+
+/* MARKET ROW */
+.row{
+  display:flex;
+  justify-content:space-between;
+  padding:6px;
+  border-bottom:1px solid #1f2a44;
+  font-size:13px;
 }
 </style>
 </head>
 
 <body>
 
-<header>🚀 NexExchange PRO (SIMULATOR)</header>
-
-<!-- AUTH -->
-<div id="auth" class="box" style="margin:10px;">
-  <h3>Login / Register</h3>
-  <input id="email" placeholder="Email"><br>
-  <input id="password" type="password" placeholder="Password"><br>
-  <button onclick="register()">Register</button>
-  <button onclick="login()">Login</button>
+<div class="topbar">
+  <div class="logo">🚀 NexTerminal PRO</div>
+  <div>SIMULATED TRADING ENVIRONMENT</div>
 </div>
 
-<!-- APP -->
-<div id="app" style="display:none;">
+<div class="grid">
 
-<div class="container">
+<!-- LEFT PANEL -->
+<div class="panel">
 
-  <!-- MARKET -->
-  <div class="box">
-    <h3>📊 Market</h3>
-    <p>BTC: $<span id="btc">50000</span></p>
-    <p>ETH: $<span id="eth">3000</span></p>
-    <p>SOL: $<span id="sol">120</span></p>
-  </div>
+  <h3>📊 Market</h3>
 
-  <!-- WALLET -->
-  <div class="box">
-    <h3>💰 Wallet</h3>
-    <p id="user"></p>
-    <p>Balance: $<span id="balance">0</span></p>
-    <button onclick="addMoney()">+100 Demo</button>
-    <button onclick="logout()">Logout</button>
-  </div>
+  <div class="row"><span>BTC</span><span id="btc">50000</span></div>
+  <div class="row"><span>ETH</span><span id="eth">3000</span></div>
+  <div class="row"><span>SOL</span><span id="sol">120</span></div>
 
-  <!-- TRADE -->
-  <div class="box">
-    <h3>📈 Trade</h3>
+  <h3>📈 Chart</h3>
+  <div id="chart"></div>
+
+</div>
+
+<!-- CENTER PANEL -->
+<div class="center">
+
+  <div class="card">
+    <h3>📈 Trading Panel</h3>
 
     <select id="coin">
       <option>BTC</option>
@@ -102,40 +129,45 @@ button{
     <button onclick="buy()">BUY</button>
     <button onclick="sell()">SELL</button>
 
-    <p id="assets"></p>
+    <p id="orders"></p>
   </div>
 
 </div>
 
+<!-- RIGHT PANEL -->
+<div class="panel">
+
+  <h3>💰 Wallet</h3>
+
+  <p>User: <span id="user">Guest</span></p>
+  <p>Balance: $<span id="balance">0</span></p>
+
+  <button onclick="addMoney()">+100 Demo</button>
+
+  <h3>Assets</h3>
+  <p id="assets"></p>
+
 </div>
 
-<script type="module">
+</div>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<script>
 
-/* 🔥 TU FIREBASE CONFIG (EL TUYO) */
-const firebaseConfig = {
-  apiKey: "AIzaSyD2e9BtERsCm6n6mAlj6Ll6c7GMcWzc0uE",
-  authDomain: "nexwallet-312d9.firebaseapp.com",
-  projectId: "nexwallet-312d9",
-  storageBucket: "nexwallet-312d9.firebasestorage.app",
-  messagingSenderId: "1070652152586",
-  appId: "1:1070652152586:web:e82236c52d783b06d578f3",
-  measurementId: "G-QHRD1ZWJYH"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore();
-
-/* 🌍 MARKET SIMULATION */
+/* MARKET ENGINE */
 let market = {
   BTC: 50000,
   ETH: 3000,
   SOL: 120
 };
+
+/* WALLET */
+let wallet = {
+  balance: 0,
+  assets: {BTC:0,ETH:0,SOL:0}
+};
+
+/* ORDERS */
+let orders = [];
 
 /* LIVE MARKET */
 setInterval(()=>{
@@ -143,114 +175,69 @@ setInterval(()=>{
     market[c] += (Math.random()-0.5)*market[c]*0.01;
     document.getElementById(c.toLowerCase()).innerText = market[c].toFixed(2);
   }
-},3000);
 
-/* REGISTER */
-window.register = async ()=>{
-  const u = await createUserWithEmailAndPassword(auth,email.value,password.value);
+  drawChart();
+},2000);
 
-  await setDoc(doc(db,"users",u.user.uid),{
-    balance:0,
-    assets:{BTC:0,ETH:0,SOL:0}
-  });
-};
+/* CHART SIMULATION */
+function drawChart(){
+  let chart = document.getElementById("chart");
+  chart.innerHTML = "";
 
-/* LOGIN */
-window.login = ()=>{
-  signInWithEmailAndPassword(auth,email.value,password.value);
-};
-
-/* LOGOUT */
-window.logout = ()=> signOut(auth);
-
-/* SESSION */
-onAuthStateChanged(auth, async (user)=>{
-  if(user){
-    document.getElementById("auth").style.display="none";
-    document.getElementById("app").style.display="block";
-
-    document.getElementById("user").innerText=user.email;
-
-    loadUser(user);
-  }else{
-    document.getElementById("auth").style.display="block";
-    document.getElementById("app").style.display="none";
+  for(let i=0;i<15;i++){
+    let h = Math.random()*80 + 10;
+    chart.innerHTML += `<div class="bar" style="width:${h}px"></div>`;
   }
-});
+}
 
-let currentUser;
+/* ADD MONEY */
+function addMoney(){
+  wallet.balance += 100;
+  update();
+}
 
-/* LOAD USER */
-async function loadUser(user){
-  currentUser = user;
+/* BUY */
+function buy(){
+  let coin = document.getElementById("coin").value;
+  let amt = Number(document.getElementById("amount").value);
 
-  let ref = doc(db,"users",user.uid);
-  let snap = await getDoc(ref);
+  let cost = market[coin]*amt;
 
-  updateUI(snap.data());
+  if(wallet.balance >= cost){
+    wallet.balance -= cost;
+    wallet.assets[coin] += amt;
+
+    orders.push("BUY "+amt+" "+coin);
+    update();
+  }
+}
+
+/* SELL */
+function sell(){
+  let coin = document.getElementById("coin").value;
+  let amt = Number(document.getElementById("amount").value);
+
+  if(wallet.assets[coin] >= amt){
+    wallet.assets[coin] -= amt;
+    wallet.balance += market[coin]*amt;
+
+    orders.push("SELL "+amt+" "+coin);
+    update();
+  }
 }
 
 /* UPDATE UI */
-function updateUI(data){
-  document.getElementById("balance").innerText = data.balance;
+function update(){
+  document.getElementById("balance").innerText = wallet.balance.toFixed(2);
 
   document.getElementById("assets").innerText =
-  `BTC:${data.assets.BTC} ETH:${data.assets.ETH} SOL:${data.assets.SOL}`;
+  `BTC:${wallet.assets.BTC} ETH:${wallet.assets.ETH} SOL:${wallet.assets.SOL}`;
+
+  document.getElementById("orders").innerText =
+  orders.slice(-5).join("\n");
 }
 
-/* ADD DEMO MONEY */
-window.addMoney = async ()=>{
-  let ref = doc(db,"users",currentUser.uid);
-  let snap = await getDoc(ref);
-
-  let b = snap.data().balance + 100;
-
-  await updateDoc(ref,{balance:b});
-
-  loadUser(currentUser);
-};
-
-/* BUY */
-window.buy = async ()=>{
-  let coin = coinSel();
-  let amt = Number(amount());
-
-  let ref = doc(db,"users",currentUser.uid);
-  let snap = await getDoc(ref);
-
-  let data = snap.data();
-  let cost = market[coin]*amt;
-
-  if(data.balance >= cost){
-    data.balance -= cost;
-    data.assets[coin] += amt;
-
-    await updateDoc(ref,data);
-    loadUser(currentUser);
-  }
-};
-
-/* SELL */
-window.sell = async ()=>{
-  let coin = coinSel();
-  let amt = Number(amount());
-
-  let ref = doc(db,"users",currentUser.uid);
-  let snap = await getDoc(ref);
-
-  let data = snap.data();
-
-  if(data.assets[coin] >= amt){
-    data.assets[coin] -= amt;
-    data.balance += market[coin]*amt;
-
-    await updateDoc(ref,data);
-    loadUser(currentUser);
-  }
-};
-
-function coinSel(){ return document.getElementById("coin").value; }
-function amount(){ return document.getElementById("amount").value; }
+update();
 
 </script>
 
